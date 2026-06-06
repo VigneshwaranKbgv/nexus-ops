@@ -1,6 +1,7 @@
 import requests
+import os
 
-LEDGER_BASE_URL = "http://localhost:8085/api/ledger"
+LEDGER_BASE_URL = os.getenv("LEDGER_BASE_URL", "http://localhost:8085/api/ledger")
 
 def fetch_accounts():
     try:

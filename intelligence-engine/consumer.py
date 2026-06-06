@@ -1,7 +1,8 @@
 import threading
 import time
 import json
-from analytics import calculate_blast_radius
+import os
+from analytics import calculate_blast_radius, LEDGER_BASE_URL
 from orchestrator import Orchestrator
 
 # Safe import fallback for confluent_kafka
@@ -44,7 +45,7 @@ def process_delay_event(payload_dict):
 
 def run_kafka_consumer():
     conf = {
-        'bootstrap.servers': 'localhost:9092',
+        'bootstrap.servers': os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092"),
         'group.id': 'fastapi-intelligence-group',
         'auto.offset.reset': 'earliest'
     }
@@ -87,7 +88,7 @@ def run_simulation_polling_consumer():
     
     while True:
         try:
-            response = requests.get("http://localhost:8085/api/ledger/audits", timeout=3)
+            response = requests.get(f"{LEDGER_BASE_URL}/audits", timeout=3)
             if response.status_code == 200:
                 audits = response.json()
                 for audit in audits:
