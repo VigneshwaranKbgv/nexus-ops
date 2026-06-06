@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusOps Autonomous Control Tower 🚀</title>
+    <meta name="description" content="Premium operator interface and autonomous decision control tower for Project NexusOps.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #060814;
+            --surface-color: rgba(13, 17, 34, 0.75);
+            --border-color: rgba(255, 255, 255, 0.05);
+            --primary-color: #10b981; /* Emerald */
+            --primary-glow: rgba(16, 185, 129, 0.2);
+            --accent-color: #3b82f6; /* Blue */
+            --accent-glow: rgba(59, 130, 246, 0.2);
+            --warning-color: #f59e0b; /* Amber */
+            --warning-glow: rgba(245, 158, 11, 0.2);
+            --danger-color: #ef4444; /* Red */
+            --danger-glow: rgba(239, 68, 68, 0.2);
+            
+            --text-main: #f9fafb;
+            --text-muted: #8892b0;
+            --glass-blur: blur(20px);
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.12) 0px, transparent 40%),
+                radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.1) 0px, transparent 40%),
+                radial-gradient(at 50% 100%, rgba(139, 92, 246, 0.08) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styling */
+        aside {
+            background: rgba(8, 11, 22, 0.85);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 1.75rem 1.25rem;
+            gap: 2rem;
+            z-index: 10;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            font-size: 1.75rem;
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        .brand-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #ffffff 40%, #a7f3d0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            list-style: none;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.03);
+            box-shadow: inset 0 0 12px rgba(255,255,255,0.02);
+        }
+
+        .nav-item.active a {
+            border-left: 3px solid var(--primary-color);
+            background: rgba(16, 185, 129, 0.03);
+            color: var(--primary-color);
+        }
+
+        .connection-status-panel {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .status-header {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .status-dot.online {
+            background-color: var(--primary-color);
+            box-shadow: 0 0 8px var(--primary-color);
+        }
+
+        .status-dot.offline {
+            background-color: var(--danger-color);
+            box-shadow: 0 0 8px var(--danger-color);
+        }
+
+        /* Main Workspace Layout */
+        main {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Top Header */
+        header {
+            background: rgba(6, 8, 20, 0.4);
+            backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .header-title p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        /* Grid Workspace */
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1fr 390px;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        /* Central mitigation feed */
+        .mitigation-center {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        /* Stat cards row */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-icon {
+            font-size: 1.75rem;
+            opacity: 0.8;
+            padding: 0.5rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        /* Right Panel tabs / sidebar */
+        .sidebar-panels {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            overflow-y: auto;
+            padding-right: 0.25rem;
+        }
+
+        .panel-box {
+            background: var(--surface-color);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .panel-box-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .panel-box-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        /* Forms inputs custom styling */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input, select {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.6rem 0.85rem;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.8rem;
+            outline: none;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent-color), #1d4ed8);
+            border: none;
+            color: white;
+            padding: 0.65rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--primary-color), #047857);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        /* Database State List Tables */
+        .data-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .data-item {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.725rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .data-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .item-name {
+            font-weight: 600;
+        }
+
+        .item-sub {
+            color: var(--text-muted);
+            font-size: 0.65rem;
+        }
+
+        .item-badge {
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.6rem;
+            font-family: monospace;
+        }
+
+        .badge-vip {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .badge-reg {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Incidents & Remediation Plans UI cards */
+        .incidents-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .no-incidents {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5rem 2rem;
+            background: rgba(255,255,255,0.01);
+            border: 1px dashed var(--border-color);
+            border-radius: 16px;
+            text-align: center;
+            color: var(--text-muted);
+            gap: 1rem;
+        }
+
+        .no-incidents-icon {
+            font-size: 3rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .incident-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+            animation: fade-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .incident-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--warning-color);
+        }
+
+        .incident-card.executed::before {
+            background: var(--primary-color);
+        }
+
+        .incident-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .incident-id-badge {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            color: var(--warning-color);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.725rem;
+            font-weight: 700;
+        }
+
+        .incident-card.executed .incident-id-badge {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--primary-color);
+        }
+
+        .incident-meta {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            background: rgba(0,0,0,0.25);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* 3-Agent conversation layout */
+        .agent-pipeline-box {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+        }
+
+        .agent-pipeline-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .agent-responses {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        .agent-bubble {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .agent-bubble-header {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .agent-bubble-body {
+            font-size: 0.725rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .agent-highlight {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .decision-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(59, 130, 246, 0.03);
+            border: 1px dashed rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 0.85rem 1.25rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Operations Console Terminal Log */
+        .console-terminal {
+            background: #03050c;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            height: 150px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+        }
+
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 0.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .console-body {
+            font-family: var(--font-mono);
+            font-size: 0.725rem;
+            color: #10b981;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-right: 0.25rem;
+        }
+
+        .log-line {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .log-time {
+            color: #8b5cf6;
+            flex-shrink: 0;
+        }
+
+        .log-tag {
+            font-weight: 700;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .log-tag.info { color: #3b82f6; }
+        .log-tag.warn { color: #f59e0b; }
+        .log-tag.success { color: #10b981; }
+
+        .log-text {
+            color: #e5e7eb;
+        }
+
+        /* Toast notifications */
+        #toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: rgba(10, 15, 30, 0.95);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(8px);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            color: var(--text-main);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.8rem;
+            animation: slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .toast.success { border-left-color: var(--primary-color); }
+        .toast.error { border-left-color: var(--danger-color); }
+
+        /* Keyframes */
+        @keyframes pulse-glow {
+            from { filter: drop-shadow(0 0 2px var(--primary-glow)); }
+            to { filter: drop-shadow(0 0 10px var(--primary-color)); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes fade-slide-in {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slide-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 99px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside>
+        <a href="#" class="brand">
+            <span class="brand-logo">🌌</span>
+            <span class="brand-name">NexusOps</span>
+        </a>
+
+        <ul class="nav-links">
+            <li class="nav-item active">
+                <a href="#">
+                    <span>💻</span> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#simulator">
+                    <span>⚙️</span> Sandbox
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#database">
+                    <span>🗄️</span> Ledger Database
+                </a>
+            </li>
+        </ul>
+
+        <div class="connection-status-panel">
+            <div class="status-header">Node Connect Status</div>
+            <div class="status-badge" id="ledger-status">
+                <span>Spring Boot Ledger</span>
+                <div>
+                    <span class="status-dot offline"></span>
+                </div>
+            </div>
+            <div class="status-badge" id="intel-status">
+                <span>FastAPI Intel Engine</span>
+                <div>
+                    <span class="status-dot offline"></span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+        <!-- Top header row -->
+        <header>
+            <div class="header-title">
+                <h2>Autonomous AI Decision Control Tower</h2>
+                <p>Observe stream events, analyze VIP churn risk, and approve AI remediation plans.</p>
+            </div>
+            <button class="btn" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 0.5rem 0.85rem; font-size: 0.75rem;" onclick="refreshAll()">
+                🔄 Refresh Systems
+            </button>
+        </header>
+
+        <!-- Grid Workspace -->
+        <div class="workspace-grid">
+            
+            <!-- Left Side: Dashboard Stats & Live Remediation Feed -->
+            <div class="mitigation-center">
+                <!-- Stats cards row -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">Revenue at Risk</span>
+                            <span class="stat-value" id="stat-revenue" style="color: var(--danger-color);">$0.00</span>
+                        </div>
+                        <span class="stat-icon">💸</span>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">VIP LTV Preserved</span>
+                            <span class="stat-value" id="stat-ltv" style="color: var(--primary-color);">$0.00</span>
+                        </div>
+                        <span class="stat-icon">🛡️</span>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">Mitigation Premiums</span>
+                            <span class="stat-value" id="stat-cost" style="color: var(--accent-color);">$0.00</span>
+                        </div>
+                        <span class="stat-icon">⚖️</span>
+                    </div>
+                </div>
+
+                <!-- Remediation Plan Stream -->
+                <div class="incidents-feed" id="incidents-feed-list">
+                    <div class="no-incidents">
+                        <span class="no-incidents-icon">📡</span>
+                        <p style="font-weight: 600; font-size: 0.9rem;">No active incidents recorded.</p>
+                        <p style="font-size: 0.725rem; color: var(--text-muted); max-width: 320px; line-height: 1.5; margin-top: 0.25rem;">
+                            Trigger a purchase order and simulate a supplier delay in the Sandbox to watch the AI Agents generate decisions.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Terminal Logs Console -->
+                <div class="console-terminal">
+                    <div class="console-header">
+                        <span>Console Logs: Operations Terminal</span>
+                        <span>Active</span>
+                    </div>
+                    <div class="console-body" id="console-logs-list">
+                        <div class="log-line">
+                            <span class="log-time">[12:00:00]</span>
+                            <span class="log-tag info">[System]</span>
+                            <span class="log-text">Control Tower loaded. Ready to intercept Kafka events.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Sandbox & Database Status -->
+            <div class="sidebar-panels">
+                
+                <!-- Sandbox panel -->
+                <div class="panel-box" id="simulator">
+                    <div class="panel-box-header">
+                        <span>🔧</span>
+                        <h3 class="panel-box-title">Operations Sandbox</h3>
+                    </div>
+
+                    <!-- Sandbox Forms Tab -->
+                    <div style="display:flex; flex-direction:column; gap:0.85rem;">
+                        <!-- Purchase Order Form -->
+                        <div style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); padding: 0.85rem; border-radius: 10px; display:flex; flex-direction:column; gap:0.75rem;">
+                            <span style="font-size:0.75rem; font-weight:700; color:var(--text-main);">1. Submit Purchase Order</span>
+                            <div class="form-group">
+                                <label>Customer Account</label>
+                                <select id="order-email">
+                                    <option value="vip_customer@gmail.com">Vigneshwaran K (vip_customer@gmail.com) [VIP]</option>
+                                    <option value="regular_customer@gmail.com">Jane Smith (regular_customer@gmail.com) [REGULAR]</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>SKU Product</label>
+                                <select id="order-sku">
+                                    <option value="SKU-SEMICON-99">Logitech Semiconductor (SKU-SEMICON-99)</option>
+                                    <option value="SKU-DISP-4K">OLED Display 4K (SKU-DISP-4K)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Quantity</label>
+                                <input type="number" id="order-qty" value="2" min="1">
+                            </div>
+                            <button class="btn" onclick="placeOrder()" id="btn-order">Submit Order</button>
+                        </div>
+
+                        <!-- Supplier Delay Form -->
+                        <div style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); padding: 0.85rem; border-radius: 10px; display:flex; flex-direction:column; gap:0.75rem;">
+                            <span style="font-size:0.75rem; font-weight:700; color:var(--text-main);">2. Simulate Supplier Failure</span>
+                            <div class="form-group">
+                                <label>Affected Product SKU</label>
+                                <select id="delay-sku">
+                                    <option value="SKU-SEMICON-99">Logitech Semiconductor (SKU-SEMICON-99)</option>
+                                    <option value="SKU-DISP-4K">OLED Display 4K (SKU-DISP-4K)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Delay Magnitude (Days)</label>
+                                <input type="number" id="delay-days" value="14" min="1">
+                            </div>
+                            <button class="btn btn-success" onclick="triggerDelay()" id="btn-delay">Stream Delay Event</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database States panel -->
+                <div class="panel-box" id="database">
+                    <div class="panel-box-header">
+                        <span>🗄️</span>
+                        <h3 class="panel-box-title">H2 Active Ledger Status</h3>
+                    </div>
+
+                    <!-- Customer accounts -->
+                    <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                        <label>VIP Accounts Database</label>
+                        <div class="data-list" id="db-accounts-list">
+                            <div style="padding:0.75rem; text-align:center; font-size:0.7rem; color:var(--text-muted);">Database offline...</div>
+                        </div>
+                    </div>
+
+                    <!-- SKU Inventory levels -->
+                    <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                        <label>SKU Inventory Quantities</label>
+                        <div class="data-list" id="db-inventory-list">
+                            <div style="padding:0.75rem; text-align:center; font-size:0.7rem; color:var(--text-muted);">Database offline...</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <div id="toast-container"></div>
+
+    <script>
+        const LEDGER_API = "http://localhost:8085/api/ledger";
+        const INTEL_API = "http://localhost:8000/api/operator";
+
+        let consoleLogs = [];
+        let connections = { ledger: false, intel: false };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initializeConsole();
+            refreshAll();
+            setInterval(checkConnections, 3000);
+            setInterval(pollIncidents, 2000); // Check for incidents automatically every 2 seconds
+            setInterval(refreshDatabaseStates, 3000); // Check DB status every 3 seconds
+        });
+
+        function writeToConsole(tag, text, type = 'info') {
+            const time = new Date().toLocaleTimeString();
+            consoleLogs.push({ time, tag, text, type });
+            if (consoleLogs.length > 50) consoleLogs.shift();
+            
+            const list = document.getElementById("console-logs-list");
+            const line = document.createElement("div");
+            line.className = "log-line";
+            line.innerHTML = `
+                <span class="log-time">[${time}]</span>
+                <span class="log-tag ${type}">[${tag}]</span>
+                <span class="log-text">${text}</span>
+            `;
+            list.appendChild(line);
+            list.scrollTop = list.scrollHeight;
+        }
+
+        function initializeConsole() {
+            writeToConsole("System", "Control Tower started.", "info");
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        async function checkConnections() {
+            // Check Ledger (8085)
+            try {
+                const res = await fetch(`${LEDGER_API}/accounts`, { method: 'GET' });
+                updateBadge('ledger-status', res.ok);
+                if (res.ok && !connections.ledger) {
+                    writeToConsole("System", "Spring Boot Ledger connected successfully.", "success");
+                    connections.ledger = true;
+                    refreshDatabaseStates();
+                }
+            } catch (e) {
+                updateBadge('ledger-status', false);
+                if (connections.ledger) {
+                    writeToConsole("System", "Lost connection to Spring Boot Ledger.", "warn");
+                    connections.ledger = false;
+                }
+            }
+
+            // Check Intel (8000)
+            try {
+                const res = await fetch("http://localhost:8000/", { method: 'GET' });
+                updateBadge('intel-status', res.ok);
+                if (res.ok && !connections.intel) {
+                    writeToConsole("System", "FastAPI Intelligence Engine connected successfully.", "success");
+                    connections.intel = true;
+                }
+            } catch (e) {
+                updateBadge('intel-status', false);
+                if (connections.intel) {
+                    writeToConsole("System", "Lost connection to FastAPI Intelligence Engine.", "warn");
+                    connections.intel = false;
+                }
+            }
+        }
+
+        function updateBadge(id, online) {
+            const badge = document.getElementById(id);
+            const dot = badge.querySelector(".status-dot");
+            if (online) {
+                dot.className = "status-dot online";
+                badge.style.borderColor = "rgba(16, 185, 129, 0.15)";
+            } else {
+                dot.className = "status-dot offline";
+                badge.style.borderColor = "rgba(239, 68, 68, 0.15)";
+            }
+        }
+
+        async function refreshDatabaseStates() {
+            if (!connections.ledger) return;
+
+            // Fetch accounts
+            try {
+                const res = await fetch(`${LEDGER_API}/accounts`);
+                if (res.ok) {
+                    const data = await res.json();
+                    renderAccounts(data);
+                }
+            } catch (e) {}
+
+            // Fetch inventory
+            try {
+                const res = await fetch(`${LEDGER_API}/inventory`);
+                if (res.ok) {
+                    const data = await res.json();
+                    renderInventory(data);
+                }
+            } catch (e) {}
+        }
+
+        function renderAccounts(accounts) {
+            const list = document.getElementById("db-accounts-list");
+            list.innerHTML = "";
+            accounts.forEach(acc => {
+                const isVip = acc.loyaltyTier === "VIP";
+                const div = document.createElement("div");
+                div.className = "data-item";
+                div.innerHTML = `
+                    <div class="item-info">
+                        <span class="item-name">${acc.name}</span>
+                        <span class="item-sub">${acc.email} | Balance: $${acc.creditBalance.toFixed(2)}</span>
+                    </div>
+                    <span class="item-badge ${isVip ? 'badge-vip' : 'badge-reg'}">${acc.loyaltyTier}</span>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function renderInventory(inventory) {
+            const list = document.getElementById("db-inventory-list");
+            list.innerHTML = "";
+            inventory.forEach(inv => {
+                const div = document.createElement("div");
+                div.className = "data-item";
+                div.innerHTML = `
+                    <div class="item-info">
+                        <span class="item-name">${inv.productName}</span>
+                        <span class="item-sub">${inv.sku} | Supplier: ${inv.supplierId}</span>
+                    </div>
+                    <span style="font-family:monospace; font-weight:700; color: ${inv.stockLevel < 20 ? 'var(--danger-color)' : 'var(--primary-color)'};">
+                        Stock: ${inv.stockLevel}
+                    </span>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        async function placeOrder() {
+            const email = document.getElementById("order-email").value;
+            const sku = document.getElementById("order-sku").value;
+            const qty = parseInt(document.getElementById("order-qty").value);
+
+            const btn = document.getElementById("btn-order");
+            btn.disabled = true;
+            btn.innerText = "Placing...";
+
+            writeToConsole("Order", `Submitting order request for customer ${email}...`, "info");
+
+            try {
+                const res = await fetch(`${LEDGER_API}/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, sku, quantity: qty })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    showToast(`Purchase order ${data.orderId} submitted!`, "success");
+                    writeToConsole("Order", `Order ${data.orderId} successfully registered in H2 Database. Total Cost: $${data.totalAmount.toFixed(2)}.`, "success");
+                    refreshDatabaseStates();
+                } else {
+                    const err = await res.text();
+                    showToast(`Error: ${err}`, "error");
+                    writeToConsole("Order", `Placement failed: ${err}`, "warn");
+                }
+            } catch (e) {
+                showToast("Connection to Ledger Service failed.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Submit Order";
+            }
+        }
+
+        async function triggerDelay() {
+            const sku = document.getElementById("delay-sku").value;
+            const days = parseInt(document.getElementById("delay-days").value);
+            
+            // Map SKU to supplier ID automatically
+            const supplierMap = {
+                "SKU-SEMICON-99": "spl_logitech_01",
+                "SKU-DISP-4K": "spl_samsung_02"
+            };
+            const supplier = supplierMap[sku] || "spl_generic";
+
+            const btn = document.getElementById("btn-delay");
+            btn.disabled = true;
+            btn.innerText = "Streaming Event...";
+
+            writeToConsole("Failure", `Simulating manufacturing delay alert on ${sku} by ${days} days...`, "warn");
+
+            try {
+                const res = await fetch(`${LEDGER_API}/supplier/delay?supplierId=${supplier}&affectedSku=${sku}&delayDays=${days}`, {
+                    method: 'POST'
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    showToast("Supplier failure streamed to Kafka!", "success");
+                    writeToConsole("Failure", `Event ${data.triggerEventId} published to Kafka topic 'marketplace-events' successfully.`, "success");
+                    
+                    // Trigger immediate polling refresh
+                    setTimeout(pollIncidents, 1000);
+                } else {
+                    const err = await res.text();
+                    showToast(`Error: ${err}`, "error");
+                }
+            } catch (e) {
+                showToast("Connection to Ledger Service failed.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Stream Delay Event";
+            }
+        }
+
+        async function pollIncidents() {
+            if (!connections.intel) return;
+
+            try {
+                const res = await fetch(`${INTEL_API}/incidents`);
+                if (res.ok) {
+                    const incidents = await res.json();
+                    renderIncidents(incidents);
+                }
+            } catch (e) {}
+        }
+
+        function renderIncidents(incidents) {
+            const feed = document.getElementById("incidents-feed-list");
+            if (incidents.length === 0) return;
+
+            feed.innerHTML = "";
+
+            let totalRevenueAtRisk = 0;
+            let totalPreservedLtv = 0;
+            let totalMitigationCost = 0;
+
+            incidents.forEach(inc => {
+                const isExecuted = inc.finalPlan.status === "APPROVED_BY_OPERATOR" || inc.finalPlan.status === "EXECUTED";
+                const isPending = inc.finalPlan.status === "PENDING_HUMAN_APPROVAL";
+
+                totalRevenueAtRisk += inc.blastRadius.revenueAtRisk;
+                totalPreservedLtv += inc.agentResponses.FinanceAgent.totalPreservedLtv;
+                totalMitigationCost += inc.agentResponses.FinanceAgent.totalMitigationCost;
+
+                const card = document.createElement("div");
+                card.className = `incident-card ${isExecuted ? 'executed' : ''}`;
+
+                const vipsRemedies = inc.agentResponses.CustomerAgent.remedies.map(r => 
+                    `<div>• <span class="agent-highlight">${r.customerName}</span> (${r.email}): Churn Risk is high. ${r.recommendation}</div>`
+                ).join("");
+
+                card.innerHTML = `
+                    <div class="incident-card-header">
+                        <div style="display:flex; flex-direction:column; gap:0.2rem;">
+                            <h3 style="font-family:'Outfit', sans-serif; font-size:1.1rem; font-weight:700;">Supply Delay Alert: ${inc.blastRadius.sku}</h3>
+                            <span style="font-size:0.7rem; color:var(--text-muted);">Processed by LangGraph autonomous agents loop</span>
+                        </div>
+                        <span class="incident-id-badge">${inc.incidentId}</span>
+                    </div>
+
+                    <div class="incident-meta">
+                        <div style="display:flex; flex-direction:column; gap:0.15rem;">
+                            <span class="meta-label">Revenue at Risk</span>
+                            <span class="stat-value" style="font-size:1.15rem; color:var(--danger-color);">$${inc.blastRadius.revenueAtRisk.toFixed(2)}</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:0.15rem;">
+                            <span class="meta-label">VIPs Affected</span>
+                            <span class="stat-value" style="font-size:1.15rem;">${inc.blastRadius.vipsCount}</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:0.15rem;">
+                            <span class="meta-label">Plan Execution Status</span>
+                            <span class="stat-value" style="font-size:1.15rem; color: ${isExecuted ? 'var(--primary-color)' : isPending ? 'var(--warning-color)' : 'var(--primary-color)'};">
+                                ${inc.finalPlan.status}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Agents Pipeline -->
+                    <div class="agent-pipeline-box">
+                        <div class="agent-pipeline-title">
+                            <span>🤖</span> Cognitive agent collaboration details
+                        </div>
+                        <div class="agent-responses">
+                            <div class="agent-bubble">
+                                <div class="agent-bubble-header">👤 CustomerAgent</div>
+                                <div class="agent-bubble-body">${vipsRemedies || 'No VIP accounts affected.'}</div>
+                            </div>
+                            <div class="agent-bubble">
+                                <div class="agent-bubble-header">📦 OperationsAgent</div>
+                                <div class="agent-bubble-body">
+                                    ${inc.agentResponses.OperationsAgent.strategy}<br>
+                                    <span class="agent-highlight">Premium Markup:</span> 20% (+ $${inc.agentResponses.OperationsAgent.estimatedCost.toFixed(2)})
+                                </div>
+                            </div>
+                            <div class="agent-bubble">
+                                <div class="agent-bubble-header">📊 FinanceAgent</div>
+                                <div class="agent-bubble-body">
+                                    <span class="agent-highlight">Total Cost:</span> $${inc.agentResponses.FinanceAgent.totalMitigationCost.toFixed(2)}<br>
+                                    <span class="agent-highlight">Saved LTV:</span> $${inc.agentResponses.FinanceAgent.totalPreservedLtv.toFixed(2)}<br>
+                                    <span class="agent-highlight">ROI Outcome:</span> <span style="color:var(--primary-color); font-weight:700;">${inc.agentResponses.FinanceAgent.decisionRoi}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Proposed Action -->
+                    <div class="decision-panel">
+                        <div style="display:flex; flex-direction:column; gap:0.15rem;">
+                            <span class="rec-title">Proposed Action Strategy</span>
+                            <span style="font-size:0.8rem; font-weight:600; color:var(--text-main);">${inc.finalPlan.mitigation}</span>
+                        </div>
+                        ${isPending ? 
+                            `<button class="btn btn-success" style="padding:0.45rem 1rem; font-size:0.75rem;" onclick="approveRemediation('${inc.incidentId}', this)">Approve Mitigation</button>` :
+                            `<span style="color: var(--primary-color); font-weight:700; font-size:0.75rem; display:flex; align-items:center; gap:0.25rem;">✨ Executed & Logged</span>`
+                        }
+                    </div>
+                `;
+                feed.appendChild(card);
+            });
+
+            // Update stats indicators
+            document.getElementById("stat-revenue").innerText = `$${totalRevenueAtRisk.toFixed(2)}`;
+            document.getElementById("stat-ltv").innerText = `$${totalPreservedLtv.toFixed(2)}`;
+            document.getElementById("stat-cost").innerText = `$${totalMitigationCost.toFixed(2)}`;
+        }
+
+        async function approveRemediation(incidentId, btn) {
+            btn.disabled = true;
+            btn.innerText = "Approving...";
+            writeToConsole("Operator", `Approving remediation plan ${incidentId}...`, "info");
+
+            try {
+                const res = await fetch(`${INTEL_API}/approve?incident_id=${incidentId}`, {
+                    method: 'POST'
+                });
+
+                if (res.ok) {
+                    showToast("Plan approved and executed in H2 Ledger!", "success");
+                    writeToConsole("Operator", `Mitigation execution command dispatched for ${incidentId} back to spring-boot.`, "success");
+                    pollIncidents();
+                } else {
+                    showToast("Approval command failed.", "error");
+                    btn.disabled = false;
+                    btn.innerText = "Approve Mitigation";
+                }
+            } catch (e) {
+                showToast("Connection to Intelligence Engine failed.", "error");
+                btn.disabled = false;
+                btn.innerText = "Approve Mitigation";
+            }
+        }
+
+        function refreshAll() {
+            checkConnections();
+            pollIncidents();
+            refreshDatabaseStates();
+            writeToConsole("System", "Control Tower metrics refreshed manually.", "info");
+        }
+    </script>
+</body>
+</html>
